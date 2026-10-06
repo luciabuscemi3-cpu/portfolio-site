@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lucia Buscemi</title>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e9e5d8; --panel:#f3f0e6; --ink:#272a1f; --muted:#5f6350; --line:#c9c4b0; --moss:#3f4e2e; --on-moss:#f1eedf; --clay:#8c5b34; --link:#3f5a2a;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#1b1e16;--panel:#23271c;--ink:#e8e6d8;--muted:#a3a68f;--line:#3b402f;--moss:#2c3820;--on-moss:#ecead9;--clay:#d19a6a;--link:#b5cf93}
+}
+:root[data-theme="dark"]{--bg:#1b1e16;--panel:#23271c;--ink:#e8e6d8;--muted:#a3a68f;--line:#3b402f;--moss:#2c3820;--on-moss:#ecead9;--clay:#d19a6a;--link:#b5cf93}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Literata",Georgia,"Times New Roman",serif;font-size:17px;line-height:1.7}
+a{color:var(--link);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--clay);outline-offset:3px}
+.wrap{max-width:820px;margin:0 auto;padding:0 22px}
+.bar{background:var(--moss);color:var(--on-moss)}
+.bar .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 28px;padding-top:18px;padding-bottom:0}
+.bar .name{font-weight:600;font-size:18px;padding-bottom:14px}
+nav{display:flex;gap:4px}
+nav a{color:var(--on-moss);text-decoration:none;padding:10px 16px 12px;font-size:15.5px;border-bottom:3px solid transparent;opacity:.8}
+nav a:hover{opacity:1}
+nav a[aria-current="page"]{opacity:1;border-bottom-color:var(--clay);font-weight:600}
+.page{display:none;padding-bottom:40px}
+.page.on{display:block}
+#home{position:relative;overflow:hidden}
+#topo{position:absolute;inset:0;width:100%;height:100%;color:var(--moss);opacity:.28;pointer-events:none}
+#home .wrap{position:relative}
+.hero{border-bottom:0}
+.hero .wrap{position:relative;padding-top:76px;padding-bottom:64px}
+h1{font-size:clamp(42px,9vw,68px);line-height:1.05;font-weight:600;margin:0 0 20px;letter-spacing:-.015em}
+.lede{font-size:20px;line-height:1.55;max-width:34em;margin:0 0 14px}
+.sub{max-width:36em;color:var(--muted);margin:0}
+h2{font-size:24px;font-weight:600;margin:48px 0 6px}
+h2::after{content:"";display:block;width:44px;height:3px;background:var(--clay);margin-top:8px}
+.intro{color:var(--muted);margin:10px 0 18px;max-width:40em}
+.facts{display:grid;gap:14px;margin-top:24px}
+@media(min-width:640px){.facts{grid-template-columns:repeat(3,1fr)}}
+.fact{border-left:3px solid var(--moss);padding:2px 0 2px 14px;font-size:15.5px;line-height:1.5}
+.fact b{display:block;font-size:17px}
+.contact{display:flex;flex-wrap:wrap;gap:10px 14px;margin-top:14px}
+.btn{display:inline-block;padding:9px 18px;border:1.5px solid var(--moss);color:var(--ink);text-decoration:none;font-size:15.5px;background:transparent}
+.btn.fill{background:var(--moss);color:var(--on-moss)}
+.btn:hover{border-color:var(--clay)}
+.item{padding:16px 0;border-bottom:1px solid var(--line)}
+.item:last-of-type{border-bottom:0}
+.item h3{font-size:19px;font-weight:600;margin:0 0 2px;line-height:1.35}
+.meta{font-size:14.5px;color:var(--clay);font-style:italic;margin-bottom:4px}
+.item p{margin:6px 0 0;max-width:42em}
+.embed{margin:16px 0 8px}
+.frame{position:relative;width:100%;background:var(--panel);border:1px solid var(--line)}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.frame .empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;color:var(--muted);font-style:italic;font-size:15px}
+.open{font-size:14.5px;margin-top:6px}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:14px}
+.photos figure{margin:0}
+.ph{aspect-ratio:4/3;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;font-style:italic;text-align:center;padding:8px}
+figcaption{font-size:13.5px;color:var(--muted);margin-top:4px}
+footer{padding:24px 0 40px;border-top:1px solid var(--line);font-size:14.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="bar"><div class="wrap">
+  <span class="name">Lucia Buscemi</span>
+  <nav aria-label="Pages">
+    <a href="#home">Home</a><a href="#research">Research</a><a href="#storytelling">Storytelling</a>
+  </nav>
+</div></header>
+
+<main>
+<!-- HOME -->
+<div class="page" id="home">
+  <svg id="topo" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" fill="none" stroke="currentColor" stroke-linejoin="round" aria-hidden="true"></svg>
+  <div class="hero">
+    <div class="wrap">
+      <h1>Lucia Buscemi</h1>
+      <p class="lede">Master's student in Geography at the University of British Columbia in Vancouver, and a Fulbright U.S. Scholar.</p>
+      <p class="sub">I study how floods, landslides, and tourism change life in the Everest region of Nepal, and I tell those stories through photographs, film, maps, and a magazine.</p>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="facts">
+      <div class="fact"><b>M.A. Geography</b>University of British Columbia, 2025–27</div>
+      <div class="fact"><b>Fulbright U.S. Scholar</b>Nepal, 2024–25</div>
+      <div class="fact"><b>Emory University</b>B.A. Anthropology and B.S. Environmental Science, summa cum laude, highest honors</div>
+    </div>
+    <h2>Contact</h2>
+    <p class="intro">For research, collaboration, or photo work.</p>
+    <div class="contact">
+      <a class="btn fill" href="mailto:LBuscemi@student.ubc.ca">LBuscemi@student.ubc.ca</a>
+      <a class="btn" href="#">Download CV</a>
+    </div>
+  </div>
+</div>
+
+<!-- RESEARCH -->
+<div class="page" id="research"><div class="wrap">
+  <h2>Research</h2>
+  <p class="intro">Hazards, tourism, and livelihoods in the Himalaya, and how local communities shape the response.</p>
+
+  <div class="item">
+    <div class="meta">Master's thesis, in progress, 2025–27</div>
+    <h3>The Effects of Hazard-Related Landscape Changes on Livelihoods in Khumbu Pasanglhamu Rural Municipality, Nepal</h3>
+    <p>How floods and landslides affect livelihoods in Solukhumbu. Designed with the Sagarmatha Pollution Control Committee and Khumbu Pasanglhamu Rural Municipality. Supervisor: Dr. Michele Koppes.</p>
+  </div>
+  <div class="item">
+    <div class="meta">Honors thesis, 2023</div>
+    <h3>Footsteps on the Roof of the World: Navigating Anthropogenic Impacts in the Everest Region</h3>
+    <p>Supported by a Halle Institute research fellowship and awarded highest honors. It looks at the autonomy of Khumbu residents and challenges Western media portrayals of trash in the region.</p>
+    <p class="open"><a href="#">Read the thesis</a></p>
+  </div>
+  <div class="item">
+    <div class="meta">Fulbright research, 2024–25</div>
+    <h3>Tourism infrastructure, climate adaptation, and policy</h3>
+    <p>Ethnographic research in the Everest region on trekking trails, adaptation initiatives, and government policy, alongside waste management work including the Carry Me Back program.</p>
+  </div>
+  <div class="item">
+    <div class="meta">Research thesis, Chile, 2024</div>
+    <h3>Dictator-era forest plantations and Mapuche medicinal plants</h3>
+    <p>A 100-page thesis written while living for a month with a traditional healer in southern Chile.</p>
+  </div>
+
+  <h2>Story map</h2>
+  <p class="intro">An interactive map from my fieldwork.</p>
+  <div class="embed" data-embed="storymap" data-ratio="62%" data-title="ArcGIS StoryMap"></div>
+
+  <h2>Scientific poster</h2>
+  <p class="intro">Plastic burning in Guatemala.</p>
+  <div class="embed" data-embed="poster" data-ratio="75%" data-title="Scientific poster"></div>
+</div></div>
+
+<!-- STORYTELLING -->
+<div class="page" id="storytelling"><div class="wrap">
+  <h2>Storytelling</h2>
+  <p class="intro">Photographs, film, and print about the places and people I work with.</p>
+
+  <h2>Magazine</h2>
+  <p class="intro">The Himalayan Art Symposium 2025 magazine.</p>
+  <div class="embed" data-embed="magazine" data-ratio="70%" data-title="Magazine"></div>
+
+  <h2>Photojournalism</h2>
+  <p class="intro">Add a sentence about the story and where it was published.</p>
+  <div class="embed" data-embed="photojournalism" data-ratio="62%" data-title="Photojournalism"></div>
+
+  <h2>Video</h2>
+  <p class="intro">Documentary on a hydropower project, filmed during my Fulbright year.</p>
+  <div class="embed" data-embed="video" data-ratio="56.25%" data-title="Video"></div>
+
+  <h2>Brochure</h2>
+  <p class="intro">A waste management brochure for Sagarmatha National Park.</p>
+  <div class="embed" data-embed="flyer" data-ratio="129%" data-max="560px" data-title="Brochure"></div>
+
+  <h2>Photography</h2>
+  <div class="photos">
+    <figure><div class="ph">Replace with a photo</div><figcaption>Caption, place, year</figcaption></figure>
+    <figure><div class="ph">Replace with a photo</div><figcaption>Caption, place, year</figcaption></figure>
+    <figure><div class="ph">Replace with a photo</div><figcaption>Caption, place, year</figcaption></figure>
+  </div>
+</div></div>
+</main>
+
+<div class="wrap"><footer>© Lucia Buscemi</footer></div>
+
+<script>
+// Paste your share/embed links between the quotes. Leave empty to show a placeholder.
+var EMBEDS = {
+  magazine: "https://www.canva.com/design/DAGlbu1lHuI/pwE2SAqAQfT6epbh-DfFRQ/view?embed",
+  photojournalism: "https://www.canva.com/design/DAF_JvlA7Rw/uStv0QBDQE4K6cSyzGXrGg/view?embed",
+  video: "https://www.youtube.com/embed/9x9nUaC5-gs",
+  storymap: "https://storymaps.arcgis.com/stories/f96e7fc4ce134c1085461bcf22367383",
+  flyer: "https://www.canva.com/design/DAGhS96YS2A/IpJbpJyo7QUl0VN2s8rgWg/view?embed",
+  poster: "https://www.canva.com/design/DAGucFhJKdc/jUPxYcBiiAcR9ZHtkVZmww/view?embed"
+};
+document.querySelectorAll(".embed").forEach(function(el){
+  if (el.dataset.max) el.style.maxWidth = el.dataset.max;
+  var url = EMBEDS[el.dataset.embed], f = document.createElement("div");
+  f.className = "frame"; f.style.paddingTop = el.dataset.ratio;
+  if (url) {
+    var i = document.createElement("iframe");
+    i.src = url; i.title = el.dataset.title; i.loading = "lazy"; i.allowFullscreen = true;
+    f.appendChild(i);
+    el.appendChild(f);
+    var p = document.createElement("p"); p.className = "open";
+    p.innerHTML = '<a target="_blank" rel="noopener">Open in a new tab</a>';
+    p.firstChild.href = url; el.appendChild(p);
+  } else {
+    f.innerHTML = '<div class="empty">Your ' + el.dataset.title.toLowerCase() + ' will appear here once its link is added.</div>';
+    el.appendChild(f);
+  }
+});
+// Stylized contour map of the Everest massif (Everest, Lhotse, Nuptse, Changtse, Cho Oyu, Makalu), not survey data.
+(function(){
+  var nx=150, ny=100, S=[[1,.38,1,.13,.10],[1.08,.55,.93,.10,.07],[.82,.55,.82,.12,.07],[.98,.2,.6,.09,.07],[.68,.38,.62,.09,.08],[.25,.3,.7,.14,.10],[1.35,.65,.75,.10,.10],[.75,.85,.5,.08,.07],[.1,.8,.35,.15,.12]];
+  function h(x,y){
+    var v=.1;
+    S.forEach(function(k){var dx=(x-k[0])/k[3],dy=(y-k[1])/k[4];v+=k[2]*Math.exp(-(dx*dx+dy*dy));});
+    return v+.035*Math.sin(x*14+y*6)+.03*Math.sin(y*19-x*7+1)+.015*Math.sin(x*31+y*23);
+  }
+  var g=[],i,j,k;
+  for(j=0;j<=ny;j++){g[j]=[];for(i=0;i<=nx;i++)g[j][i]=h(i/nx*1.5,j/ny);}
+  var cw=1200/nx,ch=800/ny,thin="",thick="";
+  for(k=0;k<14;k++){
+    var l=.1+k*.075,d="";
+    for(j=0;j<ny;j++)for(i=0;i<nx;i++){
+      var a=g[j][i],b=g[j][i+1],c=g[j+1][i+1],e=g[j+1][i],x0=i*cw,y0=j*ch;
+      var m=(a>l?8:0)|(b>l?4:0)|(c>l?2:0)|(e>l?1:0);
+      if(m==0||m==15)continue;
+      var P={T:[x0+cw*(l-a)/(b-a),y0],R:[x0+cw,y0+ch*(l-b)/(c-b)],B:[x0+cw*(l-e)/(c-e),y0+ch],L:[x0,y0+ch*(l-a)/(e-a)]};
+      var T={1:"LB",2:"BR",3:"LR",4:"TR",5:"TLBR",6:"TB",7:"TL",8:"TL",9:"TB",10:"TRLB",11:"TR",12:"LR",13:"BR",14:"LB"}[m];
+      for(var q=0;q<T.length;q+=2){var p1=P[T[q]],p2=P[T[q+1]];d+="M"+p1[0].toFixed(1)+" "+p1[1].toFixed(1)+"L"+p2[0].toFixed(1)+" "+p2[1].toFixed(1);}
+    }
+    if(k%4==0)thick+=d;else thin+=d;
+  }
+  document.getElementById("topo").innerHTML='<path d="'+thin+'" stroke-width="1"/><path d="'+thick+'" stroke-width="2"/>';
+})();
+function show(id){
+  if (!id || !document.getElementById(id)) id = "home";
+  document.querySelectorAll(".page").forEach(function(p){p.classList.toggle("on", p.id === id)});
+  document.querySelectorAll("nav a").forEach(function(a){
+    if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
+  });
+  window.scrollTo(0,0);
+}
+function fromHash(){ var h=""; try{h=location.hash.slice(1);}catch(e){} show(h); }
+document.querySelectorAll("nav a").forEach(function(a){
+  a.addEventListener("click", function(e){
+    e.preventDefault();
+    var id = a.getAttribute("href").slice(1);
+    show(id);
+    try{ history.replaceState(null, "", "#" + id); }catch(err){}
+  });
+});
+window.addEventListener("hashchange", fromHash);
+fromHash();
+</script>
+</body>
+</html>
