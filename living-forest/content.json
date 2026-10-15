@@ -1,0 +1,49 @@
+{
+  "settings": {
+    "welcomeTitle": "Welcome to the Living Forest Ecosystems Project",
+    "welcomeText": "Please click a tribal territory to experience the forest and listen to stories.",
+    "welcomeNote": "Circles show general areas only and are not territory boundaries.",
+    "nameField": "name",
+    "territoryWhere": "",
+    "apiKey": "",
+    "basemapUrl": "https://server.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer",
+    "riskBasemapUrl": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
+    "basemap": "arcgis/topographic",
+    "riskBasemap": "arcgis/imagery",
+    "startCenter": [-123.1, 48.1],
+    "startZoom": 8,
+    "storiesButtonDelaySeconds": 4,
+    "territoryLayer": { "type": "geojson", "url": "territories.geojson" },
+    "timberSalesLayer": { "type": "geojson", "url": "timber_sales.geojson" },
+    "timberSalesSource": "WA DNR / USFS timber sale data"
+  },
+  "territories": {
+    "Lummi": {
+      "displayName": "Lummi",
+      "panoramaVideo": "",
+      "riskNote": "To the Lummi, the forests...",
+      "stories": [
+        { "title": "Story one", "speaker": "Speaker name, Lummi", "video": "", "captions": "", "description": "Short description or transcript summary." },
+        { "title": "Story two", "speaker": "Speaker name, Lummi", "video": "", "captions": "", "description": "" }
+      ]
+    },
+    "Klallam": {
+      "displayName": "Klallam",
+      "panoramaVideo": "videos/docholliday.mp4",
+      "riskNote": "To the Klallam, the forests...",
+      "stories": [
+        { "title": "Story one", "Talesha Francis": "Talesha Francis, Lower Elwha Klallam", "youtube": "https://youtu.be/c0x6952Acko", "captions": "", "description": "Short description or transcript summary." },
+        { "title": "Story two", "Linda Weichman": "Linda Weichman, Lower Elwha Klallam", "video": "", "captions": "", "description": "" }
+      ]
+    },
+    "Skokomish": {
+      "displayName": "Skokomish",
+      "panoramaVideo": "",
+      "riskNote": "To the Skokomish, the forests...",
+      "stories": [
+        { "title": "Story one", "speaker": "Speaker name, Skokomish", "video": "", "captions": "", "description": "Short description or transcript summary." },
+        { "title": "Story two", "speaker": "Speaker name, Skokomish", "video": "", "captions": "", "description": "" }
+      ]
+    }
+  }
+}
