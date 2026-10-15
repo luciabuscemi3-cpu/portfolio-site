@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Living Forest Ecosystems Project</title>
+<link rel="stylesheet" href="https://js.arcgis.com/4.30/esri/themes/dark/main.css">
+<style>
+  :root { --bg:#10170f; --panel:rgba(16,23,15,.9); --accent:#c9a45c; --text:#f3efe4; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text);
+    font-family: Georgia, "Times New Roman", serif; }
+  .screen { position:fixed; inset:0; display:none; }
+  .screen.active { display:block; }
+
+  .panel { position:absolute; background:var(--panel); padding:20px 26px; border-radius:10px;
+    backdrop-filter: blur(6px); max-width:460px; }
+  .panel h1, .panel h2 { margin:0 0 8px; font-weight:normal; }
+  .panel p { margin:0; line-height:1.5; }
+
+  button.btn { font:inherit; font-size:1.05rem; color:var(--bg); background:var(--accent);
+    border:0; border-radius:999px; padding:12px 24px; cursor:pointer; }
+  button.btn:hover, button.btn:focus-visible { filter:brightness(1.12); outline:2px solid #fff; outline-offset:2px; }
+  button.ghost { background:transparent; color:var(--text); border:1px solid rgba(255,255,255,.5); }
+
+  /* welcome */
+  #welcome-panel { top:20px; left:20px; }
+  #welcome-note { margin-top:8px; font-size:.8rem; opacity:.65; }
+  #chooser { position:absolute; display:none; background:var(--panel); border-radius:10px; padding:14px 18px; z-index:5; }
+  #chooser p { margin:0 0 8px; font-size:.95rem; }
+  #chooser button { display:block; width:100%; margin:6px 0 0; }
+
+  /* forest */
+  #forest { background:#0a0f09; }
+  #panorama { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  #forest-title { top:20px; left:20px; }
+  #forest-actions { position:absolute; left:20px; bottom:28px; display:flex; flex-direction:column; gap:12px; align-items:flex-start; }
+  #forest-actions .btn, #center-action .btn { opacity:0; transform:translateY(12px); pointer-events:none;
+    transition:opacity .9s ease, transform .9s ease; }
+  #forest-actions .btn.show, #center-action .btn.show { opacity:1; transform:none; pointer-events:auto; }
+  #center-action { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; }
+  #center-action .btn { font-size:1.3rem; padding:16px 34px; box-shadow:0 6px 24px rgba(0,0,0,.45); }
+  #top-right { position:absolute; top:20px; right:20px; display:flex; gap:10px; }
+  #novideo { position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+    color:rgba(255,255,255,.4); font-size:1.1rem; text-align:center; padding:20px;
+    background: radial-gradient(circle at 50% 60%, #1f3a22, #0a0f09 70%); }
+
+  /* stories window (centered, large) */
+  #stories { position:absolute; inset:0; z-index:6; display:flex; align-items:center; justify-content:center;
+    padding:20px; background:rgba(5,9,5,.62); backdrop-filter:blur(3px);
+    visibility:hidden; opacity:0; transition:opacity .4s ease, visibility .4s; }
+  #stories.open { visibility:visible; opacity:1; }
+  #stories-card { position:relative; width:min(1000px,100%); max-height:100%; overflow:auto;
+    background:var(--panel); border:1px solid rgba(255,255,255,.14); border-radius:16px;
+    padding:28px 32px 24px; box-shadow:0 20px 60px rgba(0,0,0,.55); }
+  #stories-close { position:absolute; top:16px; right:16px; padding:6px 16px; font-size:.95rem; }
+  #story-heading { margin:0 90px 4px 0; font-weight:normal; font-size:1.75rem; line-height:1.25; }
+  #story-title { margin:0 0 16px; opacity:.75; font-size:1.05rem; }
+  #story-title:empty { display:none; }
+  #story-media { display:none; width:100%; aspect-ratio:16/9; max-height:62vh; margin:0 auto;
+    background:#000; border-radius:10px; overflow:hidden; }
+  #story-media video, #story-media iframe { display:none; width:100%; height:100%; border:0;
+    background:#000; object-fit:contain; }
+  #story-caption { margin:14px 0 0; font-size:1rem; line-height:1.55; }
+  #story-caption:empty { display:none; }
+  #story-nav { display:flex; align-items:center; justify-content:center; gap:20px; margin-top:20px; }
+  button.btn.arrow { width:48px; height:48px; padding:0; font-size:1.9rem; line-height:1;
+    display:inline-flex; align-items:center; justify-content:center; }
+  button.btn.arrow:disabled { opacity:.3; cursor:default; filter:none; }
+  #story-dots { display:flex; gap:9px; align-items:center; }
+  #story-dots button { width:11px; height:11px; padding:0; border-radius:50%;
+    border:1px solid rgba(255,255,255,.7); background:transparent; cursor:pointer; }
+  #story-dots button[aria-current="true"] { background:var(--accent); border-color:var(--accent); }
+  #story-footer { text-align:center; }
+  #modal-risk-btn { display:none; margin-top:18px; }
+
+  /* risk */
+  #risk-map { position:absolute; inset:0; }
+  #risk-panel { top:20px; left:60px; }
+  #risk-panel .btn { margin-top:14px; }
+  #risk-note { margin-top:8px; font-size:.95rem; opacity:.9; }
+  #risk-source { margin-top:10px; font-size:.8rem; opacity:.7; }
+  .esri-view .esri-ui-top-left { top:20px; }
+</style>
+</head>
+<body>
+
+<!-- Screen 1: welcome + territory map -->
+<section id="welcome" class="screen" aria-label="Welcome">
+  <div id="welcome-map" style="position:absolute;inset:0"></div>
+  <div id="welcome-panel" class="panel">
+    <h1 id="welcome-title"></h1>
+    <p id="welcome-text"></p>
+    <p id="welcome-note"></p>
+  </div>
+  <div id="chooser" role="dialog" aria-label="Choose territory"></div>
+</section>
+
+<!-- Screen 2: forest panorama + stories -->
+<section id="forest" class="screen" aria-label="Forest">
+  <video id="panorama" autoplay muted loop playsinline></video>
+  <div id="novideo">No panorama video set for this territory yet.<br>Add one in content.json.</div>
+  <div id="forest-title" class="panel"><h2 id="forest-name"></h2></div>
+  <div id="top-right">
+    <button class="btn ghost" id="sound-btn" type="button">Sound on</button>
+    <button class="btn ghost" id="back-map" type="button">Back to map</button>
+  </div>
+  <div id="center-action">
+    <button class="btn" id="stories-btn" type="button">Listen to stories about this forest</button>
+  </div>
+  <div id="forest-actions">
+    <button class="btn" id="risk-btn" type="button">Learn what is at risk</button>
+  </div>
+
+  <div id="stories" role="dialog" aria-modal="true" aria-labelledby="story-heading">
+    <div id="stories-card">
+      <button class="btn ghost" id="stories-close" type="button">Close</button>
+      <h2 id="story-heading"></h2>
+      <p id="story-title"></p>
+      <div id="story-media">
+        <video id="story-player" controls playsinline></video>
+        <iframe id="story-embed" title="Story video"
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+      </div>
+      <p id="story-caption"></p>
+      <div id="story-nav">
+        <button class="btn ghost arrow" id="story-prev" type="button" aria-label="Previous story">&#8249;</button>
+        <div id="story-dots"></div>
+        <button class="btn ghost arrow" id="story-next" type="button" aria-label="Next story">&#8250;</button>
+      </div>
+      <div id="story-footer">
+        <button class="btn" id="modal-risk-btn" type="button">Learn what is at risk</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Screen 3: what is at risk -->
+<section id="risk" class="screen" aria-label="What is at risk">
+  <div id="risk-map"></div>
+  <div id="risk-panel" class="panel">
+    <h2 id="risk-title"></h2>
+    <p id="risk-note"></p>
+    <p id="risk-source"></p>
+    <button class="btn ghost" id="risk-back" type="button">Back to the forest</button>
+  </div>
+</section>
+
+<script src="https://js.arcgis.com/4.30/"></script>
+<script>
+require([
+  "esri/config", "esri/Map", "esri/Basemap", "esri/views/MapView", "esri/layers/GeoJSONLayer",
+  "esri/layers/FeatureLayer", "esri/layers/TileLayer", "esri/geometry/geometryEngine"
+], function (esriConfig, Map, Basemap, MapView, GeoJSONLayer, FeatureLayer, TileLayer, geometryEngine) {
+
+  const $ = (id) => document.getElementById(id);
+  let content, S, currentName = null;
+  let welcomeView = null, riskView = null, riskTerritoryLayer = null;
+  let riskTimberLayer = null, riskTimberView = null, riskReady = null, timberError = null;
+
+  // ---------- helpers ----------
+  function makeLayer(cfg, opts) {
+    // cfg: {type:"geojson"|"featurelayer", url:"...", layerId?:0}
+    // A feature service address with no layer number gets "/0" added (or cfg.layerId).
+    let url = cfg.url;
+    if (cfg.type === "featurelayer" && /\/FeatureServer\/?$/i.test(url)) {
+      url = url.replace(/\/$/, "") + "/" + (cfg.layerId ?? 0);
+    }
+    const Cls = cfg.type === "featurelayer" ? FeatureLayer : GeoJSONLayer;
+    return new Cls(Object.assign({ url }, opts));
+  }
+  // If a tile service URL is given use it as the basemap; otherwise use an Esri basemap id (needs an API key).
+  function makeBasemap(tileUrl, esriId) {
+    if (tileUrl) return new Basemap({ baseLayers: [new TileLayer({ url: tileUrl })] });
+    return esriId;
+  }
+  function escSql(s) { return String(s).replace(/'/g, "''"); }
+  function tinfo(name) { return (content.territories || {})[name] || {}; }
+  function show(id) {
+    document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === id));
+  }
+
+  // ---------- routing (hash based so the browser Back button works) ----------
+  function route() {
+    const [, screen, rawName] = location.hash.split("/");
+    const name = rawName ? decodeURIComponent(rawName) : null;
+    stopForestMedia();
+    if (screen === "forest" && name) openForest(name);
+    else if (screen === "risk" && name) openRisk(name);
+    else openWelcome();
+  }
+  window.addEventListener("hashchange", route);
+  function go(hash) { location.hash = hash; }
+
+  // ---------- screen 1: welcome ----------
+  function openWelcome() {
+    show("welcome");
+    $("chooser").style.display = "none";
+    $("welcome-title").textContent = S.welcomeTitle;
+    $("welcome-text").textContent = S.welcomeText;
+    $("welcome-note").textContent = S.welcomeNote || "";
+    if (welcomeView) return;
+
+    const territories = makeLayer(S.territoryLayer, {
+      title: "Territories",
+      outFields: ["*"],
+      labelsVisible: true,
+      labelingInfo: [{
+        labelExpressionInfo: { expression: "$feature." + S.nameField },
+        labelPlacement: "always-horizontal",
+        symbol: { type: "text", color: "#ffffff", haloColor: "#10170f", haloSize: 2.5,
+                  font: { family: "Georgia", size: 18, weight: "bold" } }
+      }],
+      popupEnabled: false,
+      renderer: {
+        type: "simple",
+        symbol: { type: "simple-fill", color: [201, 164, 92, 0.28],
+                  outline: { color: [201, 164, 92, 1], width: 1.5 } }
+      }
+    });
+    // Optional: show only some territories, e.g. "Name IN ('Lummi','Skokomish')"
+    if (S.territoryWhere) territories.definitionExpression = S.territoryWhere;
+    welcomeView = new MapView({
+      container: "welcome-map",
+      map: new Map({ basemap: makeBasemap(S.basemapUrl, S.basemap || "arcgis/topographic"), layers: [territories] }),
+      center: S.startCenter || [-120.8, 47.4],
+      zoom: S.startZoom || 7,
+      popupEnabled: false,
+      ui: { components: ["zoom"] }
+    });
+
+    const hit = async (event) => {
+      const res = await welcomeView.hitTest(event, { include: [territories] });
+      const names = [...new Set(res.results.map((r) => r.graphic.attributes[S.nameField]).filter(Boolean))];
+      return { names, event };
+    };
+
+    welcomeView.on("pointer-move", async (e) => {
+      const { names } = await hit(e);
+      $("welcome-map").style.cursor = names.length ? "pointer" : "default";
+    });
+
+    welcomeView.on("click", async (e) => {
+      const { names } = await hit(e);
+      $("chooser").style.display = "none";
+      if (names.length === 1) go("/forest/" + encodeURIComponent(names[0]));
+      else if (names.length > 1) showChooser(names, e.x, e.y);
+    });
+  }
+
+  // Territories overlap in Washington, so a click can land in more than one.
+  function showChooser(names, x, y) {
+    const box = $("chooser");
+    box.innerHTML = "";
+    const p = document.createElement("p");
+    p.textContent = "This place is within more than one territory. Choose one:";
+    box.appendChild(p);
+    names.forEach((n) => {
+      const b = document.createElement("button");
+      b.className = "btn ghost";
+      b.type = "button";
+      b.textContent = tinfo(n).displayName || n;
+      b.onclick = () => go("/forest/" + encodeURIComponent(n));
+      box.appendChild(b);
+    });
+    box.style.display = "block";
+    box.style.left = Math.min(x, window.innerWidth - 300) + "px";
+    box.style.top = Math.min(y, window.innerHeight - 40 - names.length * 50) + "px";
+  }
+
+  // ---------- forest sounds (separate audio file, loops quietly under everything) ----------
+  const ambient = new Audio();
+  ambient.loop = true;
+  ambient.preload = "auto";
+  let userMuted = false;
+  const ambientVol = () => S.ambientVolume ?? 0.5;
+
+  function updateSoundBtn() {
+    $("sound-btn").textContent = (!ambient.paused && !ambient.muted) ? "Sound off" : "Sound on";
+  }
+  ambient.addEventListener("play", updateSoundBtn);
+  ambient.addEventListener("pause", updateSoundBtn);
+
+  function startAmbient(name) {
+    const src = tinfo(name).ambientAudio || S.ambientAudio || "";
+    $("sound-btn").style.display = src ? "" : "none";
+    if (!src) { ambient.pause(); return; }
+    if (ambient.dataset.src !== src) { ambient.dataset.src = src; ambient.src = src; }
+    ambient.volume = ambientVol();
+    ambient.muted = userMuted;
+    // some browsers block sound until the visitor clicks something; the Sound button covers that case
+    ambient.play().then(updateSoundBtn).catch(updateSoundBtn);
+    updateSoundBtn();
+  }
+  function duckAmbient(on) { ambient.volume = on ? (S.ambientDuckVolume ?? 0.08) : ambientVol(); }
+
+  $("sound-btn").onclick = () => {
+    if (ambient.paused) { userMuted = false; ambient.muted = false; ambient.play().catch(() => {}); }
+    else { ambient.muted = !ambient.muted; userMuted = ambient.muted; }
+    updateSoundBtn();
+  };
+
+  // ---------- screen 2: forest ----------
+  let storiesTimer = null;
+  let stories = [], storyIdx = 0;
+
+  function stopStoryMedia() {
+    const sp = $("story-player");
+    sp.pause();
+    if (sp.getAttribute("src")) { sp.removeAttribute("src"); sp.load(); }
+    $("story-embed").removeAttribute("src");
+  }
+  function stopForestMedia() {
+    clearTimeout(storiesTimer);
+    $("panorama").pause();
+    stopStoryMedia();
+    ambient.pause();
+  }
+
+  function openForest(name) {
+    currentName = name;
+    show("forest");
+    const info = tinfo(name);
+    $("forest-name").textContent = info.displayName || name;
+
+    // reset UI state
+    $("stories").classList.remove("open");
+    $("stories-btn").classList.remove("show");
+    $("risk-btn").classList.remove("show");
+    stopStoryMedia();
+
+    // panorama (must be muted for browsers to allow autoplay; the forest sounds are a separate file)
+    const pano = $("panorama");
+    if (info.panoramaVideo) {
+      $("novideo").style.display = "none";
+      pano.style.display = "block";
+      pano.muted = true;
+      pano.src = info.panoramaVideo;
+      pano.play().catch(() => {});
+    } else {
+      pano.removeAttribute("src");
+      pano.style.display = "none";
+      $("novideo").style.display = "flex";
+    }
+
+    startAmbient(name);
+
+    // the "listen to stories" button fades in a few seconds after the video starts
+    clearTimeout(storiesTimer);
+    storiesTimer = setTimeout(() => $("stories-btn").classList.add("show"), (S.storiesButtonDelaySeconds ?? 4) * 1000);
+  }
+
+  // ---------- stories window ----------
+  function openStories() {
+    stories = tinfo(currentName).stories || [];
+    storyIdx = 0;
+    $("panorama").pause();            // the forest video behind pauses
+    duckAmbient(true);                // forest sounds drop to a whisper so the speakers are clear
+    $("stories").classList.add("open");
+    $("stories-btn").classList.remove("show");
+    $("risk-btn").classList.add("show");
+    renderStory();
+    $("stories-close").focus();
+  }
+  function closeStories() {
+    $("stories").classList.remove("open");
+    stopStoryMedia();
+    const pano = $("panorama");
+    if (pano.getAttribute("src")) pano.play().catch(() => {});
+    duckAmbient(false);
+    $("stories-btn").classList.add("show");
+  }
+
+  function renderStory() {
+    stopStoryMedia();
+    const n = stories.length;
+    const media = $("story-media"), sp = $("story-player"), em = $("story-embed");
+    media.style.display = "none"; sp.style.display = "none"; em.style.display = "none";
+
+    if (!n) {
+      $("story-heading").textContent = "No stories yet";
+      $("story-title").textContent = "";
+      $("story-caption").textContent = "No stories have been added for this territory yet.";
+      $("story-nav").style.display = "none";
+      $("modal-risk-btn").style.display = "inline-block";
+      return;
+    }
+
+    const st = stories[storyIdx];
+    $("story-heading").textContent = st.speaker || st.title || "Story " + (storyIdx + 1);
+    $("story-title").textContent = st.speaker && st.title ? st.title : "";
+    $("story-caption").textContent = st.description || "";
+
+    if (st.youtube) {
+      // accepts a bare video ID or a full YouTube link
+      const id = String(st.youtube).replace(/^.*(?:v=|youtu\.be\/|embed\/)/, "").split(/[?&]/)[0];
+      em.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?rel=0&playsinline=1&autoplay=1";
+      media.style.display = "block"; em.style.display = "block";
+    } else if (st.video) {
+      sp.querySelectorAll("track").forEach((t) => t.remove());
+      sp.src = st.video;
+      if (st.captions) {
+        const t = document.createElement("track");
+        t.kind = "captions"; t.src = st.captions; t.default = true; t.label = "Captions";
+        sp.appendChild(t);
+      }
+      media.style.display = "block"; sp.style.display = "block";
+      sp.play().catch(() => {});
+    }
+
+    // arrows and dots
+    $("story-nav").style.display = "flex";
+    $("story-prev").disabled = storyIdx === 0;
+    $("story-next").disabled = storyIdx === n - 1;
+    const dots = $("story-dots");
+    dots.innerHTML = "";
+    stories.forEach((s, i) => {
+      const d = document.createElement("button");
+      d.type = "button";
+      d.setAttribute("aria-label", "Story " + (i + 1) + " of " + n);
+      if (i === storyIdx) d.setAttribute("aria-current", "true");
+      d.onclick = () => { storyIdx = i; renderStory(); };
+      dots.appendChild(d);
+    });
+    // after the last story, offer the next step
+    $("modal-risk-btn").style.display = storyIdx === n - 1 ? "inline-block" : "none";
+  }
+
+  $("stories-btn").onclick = openStories;
+  $("stories-close").onclick = closeStories;
+  $("story-prev").onclick = () => { if (storyIdx > 0) { storyIdx--; renderStory(); } };
+  $("story-next").onclick = () => { if (storyIdx < stories.length - 1) { storyIdx++; renderStory(); } };
+  $("stories").addEventListener("click", (e) => { if (e.target === $("stories")) closeStories(); });
+  document.addEventListener("keydown", (e) => {
+    if (!$("stories").classList.contains("open")) return;
+    if (e.key === "Escape") closeStories();
+    else if (e.key === "ArrowRight") $("story-next").click();
+    else if (e.key === "ArrowLeft") $("story-prev").click();
+  });
+  $("modal-risk-btn").onclick = () => go("/risk/" + encodeURIComponent(currentName));
+  $("back-map").onclick = () => go("/");
+  $("risk-btn").onclick = () => go("/risk/" + encodeURIComponent(currentName));
+
+  // ---------- screen 3: what is at risk ----------
+  function timberRenderer(geomType) {
+    if (geomType === "polygon") {
+      return { type: "simple", symbol: { type: "simple-fill", color: [200, 50, 40, 0.65],
+               outline: { color: [120, 20, 20, 1], width: 1 } } };
+    }
+    if (geomType === "polyline") {
+      return { type: "simple", symbol: { type: "simple-line", color: [200, 50, 40, 1], width: 2 } };
+    }
+    return { type: "simple", symbol: { type: "simple-marker", color: [200, 50, 40, 0.85], size: 8,
+             outline: { color: [120, 20, 20, 1], width: 1 } } };
+  }
+  function timberPopup() {
+    const p = S.timberSalesPopup;
+    return {
+      title: p.title || "Timber sale",
+      outFields: ["*"],
+      content: [{ type: "fields",
+                  fieldInfos: (p.fields || []).map((f) => ({ fieldName: f.field, label: f.label || f.field })) }]
+    };
+  }
+
+  // builds the risk map once
+  function initRisk() {
+    if (riskReady) return riskReady;
+    riskReady = (async () => {
+      riskTerritoryLayer = makeLayer(S.territoryLayer, {
+        title: "Territory", outFields: ["*"], popupEnabled: false,
+        visible: S.riskShowTerritoryOutline !== false,
+        renderer: { type: "simple",
+          symbol: { type: "simple-fill", color: [0, 0, 0, 0],
+                    outline: { color: [201, 164, 92, 1], width: 2.5 } } }
+      });
+      riskTimberLayer = makeLayer(S.timberSalesLayer, { title: "Timber sales", outFields: ["*"] });
+      if (S.timberSalesPopup) riskTimberLayer.popupTemplate = timberPopup();
+      else riskTimberLayer.defaultPopupTemplateEnabled = true;
+
+      let timberOk = true;
+      try {
+        await riskTimberLayer.load();
+        riskTimberLayer.renderer = timberRenderer(riskTimberLayer.geometryType);
+      } catch (err) {
+        timberOk = false;
+        timberError = (err && err.message) ? err.message : String(err);
+        console.error("Timber sales layer failed to load:", err);
+      }
+
+      riskView = new MapView({
+        container: "risk-map",
+        map: new Map({
+          basemap: makeBasemap(S.riskBasemapUrl, S.riskBasemap || "arcgis/imagery"),
+          layers: timberOk ? [riskTerritoryLayer, riskTimberLayer] : [riskTerritoryLayer]
+        }),
+        ui: { components: ["zoom"] }
+      });
+      await riskView.when();
+      if (timberOk) riskTimberView = await riskView.whenLayerView(riskTimberLayer);
+    })();
+    return riskReady;
+  }
+
+  async function openRisk(name) {
+    currentName = name;
+    show("risk");
+    const info = tinfo(name);
+    const setSource = (msg) => { $("risk-source").textContent = msg; };
+    $("risk-title").textContent = "What is at risk in " + (info.displayName || name);
+    $("risk-note").textContent = info.riskNote || "";
+    setSource(S.timberSalesSource ? "Timber sale data: " + S.timberSalesSource : "");
+
+    await initRisk();
+
+    const expr = `${S.nameField} = '${escSql(name)}'`;
+    riskTerritoryLayer.definitionExpression = expr;
+    const q = riskTerritoryLayer.createQuery();
+    q.where = expr; q.returnGeometry = true;
+    const res = await riskTerritoryLayer.queryFeatures(q);
+    const terrExtent = res.features.length
+      ? res.features.map((f) => f.geometry.extent).reduce((a, b) => a.union(b)) : null;
+
+    if (!riskTimberView) {
+      setSource("The timber sales layer could not be loaded" + (timberError ? " (" + timberError + ")" : "") +
+        ". Check its address in content.json and that it is shared publicly.");
+      if (terrExtent) riskView.goTo(terrExtent.expand(1.15));
+      return;
+    }
+
+    const field = S.timberSalesNameField;
+    if (field) {
+      // the timber sales layer says which tribe each sale belongs to: filter by that value
+      const match = info.timberSalesMatch;
+      riskTimberLayer.definitionExpression = match ? `${field} = '${escSql(match)}'` : "1=0";
+      riskTimberView.featureEffect = null;
+      if (!match) setSource("There is no timber sale data for this territory in the current layer.");
+      let target = terrExtent;
+      if (match) {
+        try {
+          const ext = await riskTimberLayer.queryExtent(riskTimberLayer.createQuery());
+          if (ext && ext.count > 0) target = ext.extent;
+        } catch (err) { console.warn("Could not get timber sales extent:", err); }
+      }
+      if (target) riskView.goTo(target.expand(1.15));
+    } else if (res.features.length) {
+      // otherwise show only the sales that fall inside this territory's shape
+      const geoms = res.features.map((f) => f.geometry);
+      const geom = geoms.length > 1 ? geometryEngine.union(geoms) : geoms[0];
+      riskTimberView.featureEffect = {
+        filter: { geometry: geom, spatialRelationship: "intersects" },
+        excludedEffect: "opacity(0%)"
+      };
+      riskView.goTo(terrExtent.expand(1.15));
+    }
+  }
+  $("risk-back").onclick = () => go("/forest/" + encodeURIComponent(currentName));
+
+  // ---------- start ----------
+  fetch("content.json")
+    .then((r) => r.json())
+    .then((c) => {
+      content = c; S = c.settings;
+      // ArcGIS basemaps need an API key (set "apiKey" in content.json)
+      if (S.apiKey) esriConfig.apiKey = S.apiKey;
+      else if (!S.basemapUrl || !S.riskBasemapUrl) console.warn("No apiKey and no basemap URL set: ArcGIS may ask visitors to sign in.");
+      route();
+    })
+    .catch((err) => {
+      document.body.innerHTML = "<p style='padding:30px'>Could not load content.json. " +
+        "Open this page through a web server (see README), not by double-clicking the file.</p>";
+      console.error(err);
+    });
+});
+</script>
+</body>
+</html>
