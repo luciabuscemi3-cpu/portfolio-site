@@ -40,7 +40,7 @@
       "panoramaVideo": "",
       "riskNote": "To the Lummi, the forests...",
       "stories": [
-        { "title": "Story one", "speaker": "Speaker name, Lummi", "video": "", "captions": "", "description": "Short description or transcript summary." },
+        { "title": "Story one", "speaker": "Speaker name, Lummi", "video": "", "captions": "", "description": "Description..." },
         { "title": "Story two", "speaker": "Speaker name, Lummi", "video": "", "captions": "", "description": "" }
       ]
     },
@@ -50,7 +50,7 @@
       "timberSalesMatch": "klallam",
       "riskNote": "To the Klallam, the forests...",
       "stories": [
-        { "title": "Story one", "speaker": "Talesha Francis, Lower Elwha Klallam", "youtube": "https://youtu.be/c0x6952Acko", "captions": "", "description": "Short description or transcript summary." },
+        { "title": "Story one", "speaker": "Talesha Francis, Lower Elwha Klallam", "youtube": "https://youtu.be/c0x6952Acko", "captions": "", "description": "Description...." },
         { "title": "Story two", "speaker": "Linda Weichman, Lower Elwha Klallam", "video": "", "captions": "", "description": "" }
       ]
     },
